@@ -12,20 +12,24 @@ from akamai.edgegrid import EdgeGridAuth
 from configparser import ConfigParser
 
 # Load EdgeGrid credentials from .edgerc
-config = ConfigParser()
-config.read('.edgerc')
-section = 'default'
-client_token = config.get(section, 'client_token')
-client_secret = config.get(section, 'client_secret')
-access_token = config.get(section, 'access_token')
-host = config.get(section, 'host')
-
-session = requests.Session()
-session.auth = EdgeGridAuth(
-    client_token=client_token,
-    client_secret=client_secret,
-    access_token=access_token
-)
+def get_akamai_session():
+    """
+    Returns a requests session with EdgeGridAuth loaded from .edgerc
+    """
+    config = ConfigParser()
+    config.read('.edgerc')
+    section = 'default'
+    if not config.has_section(section):
+        raise ValueError("Missing [default] section in .edgerc file")
+    
+    session = requests.Session()
+    session.auth = EdgeGridAuth(
+        client_token=config.get(section, 'client_token'),
+        client_secret=config.get(section, 'client_secret'),
+        access_token=config.get(section, 'access_token')
+    )
+    session.headers['Host'] = config.get(section, 'host')
+    return session, config.get(section, 'host')
 
 # 1. Detection Utilities
 
@@ -130,6 +134,8 @@ def purge_cache(identifiers: list, by: str = 'url', network: str = 'production')
     """
     Purge or invalidate content via Akamai CCU/Purge API.
     """
+    session, host = get_akamai_session()
+
     endpoint = f'https://{host}/ccu/v3/{by}/{network}'
     payload = {'objects': identifiers}
     resp = session.post(endpoint, json=payload)
@@ -140,6 +146,8 @@ def list_property_hostnames(property_name: str, version: int) -> list:
     """
     List hostnames configured in a Property Manager property version.
     """
+    session, host = get_akamai_session()
+    
     endpoint = f'https://{host}/papi/v1/properties/{property_name}/versions/{version}/hostnames'
     resp = session.get(endpoint)
     data = resp.json()
@@ -150,6 +158,8 @@ def list_edns_zones() -> list:
     """
     Retrieve Edge DNS zones via Akamai EDNS API.
     """
+    session, host = get_akamai_session()
+
     endpoint = f'https://{host}/edgedns/v1/zones'
     resp = session.get(endpoint)
     return [z['zone'] for z in resp.json().get('zones', [])]
@@ -159,6 +169,8 @@ def list_cps_certificates() -> list:
     """
     List certificates managed by Akamai CPS.
     """
+    session, host = get_akamai_session()
+
     endpoint = f'https://{host}/cps/v2/enrollments'
     resp = session.get(endpoint)
     return resp.json().get('enrollments', [])
