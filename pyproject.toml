@@ -3,10 +3,10 @@ requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "akamai_api"
-version = "0.1.0"
+name = "akamai-api"
+version = "0.1.1"
 authors = [
-  { name = "Your Name", email = "you@example.com" }
+  { name = "Akamai Technologies"}
 ]
 description = "Utilities to detect and analyze Akamai CDN usage and integrate with Akamai APIs."
 readme = "README.md"
