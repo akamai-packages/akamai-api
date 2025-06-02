@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "akamai-api"
-version = "0.1.1"
+version = "1.0"
 authors = [
   { name = "Akamai Technologies"}
 ]
@@ -25,3 +25,8 @@ dependencies = [
   "edgegrid-python",
   "python-whois"
 ]
+[project.urls]
+Homepage = "https://github.com/akamai-packages/akamai-api"
+Documentation = "https://akamai-packages.github.io/akamai-api"
+Repository = "https://github.com/akamai-packages/akamai-api"
+Issues = "https://github.com/akamai-packages/akamai-api/issues"
